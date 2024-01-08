@@ -7,7 +7,11 @@ export default () => {
   const [posts, setPosts] = useState({});
 
   const fetchPosts = async () => {
-    const res = await axios.get("http://localhost:4002/posts");
+    const res = await axios.get("http://localhost:4002/posts")
+    .catch(error => {
+      console.log('Error during fetching post list. \n', error.message); 
+      return [];
+    });
     setPosts(res.data);
   };
 
@@ -15,21 +19,24 @@ export default () => {
     fetchPosts();
   }, []);
 
-  const renderedPosts = Object.values(posts).map((post) => {
-    return (
-        <div
-      className="card"
-      style={{ width: "30%", marginBottom: "20px" }}
-      key={post.id}
-    >
-      <div className="card-body">
-        <h3>{post.title}</h3>
-        <CommentList comments={post.comments} />
-        <CommentCreate postId={post.id} />
+  let renderedPosts;
+  if (posts) {
+    renderedPosts = Object.values(posts).map((post) => {
+      return (
+          <div
+        className="card"
+        style={{ width: "30%", marginBottom: "20px" }}
+        key={post.id}
+      >
+        <div className="card-body">
+          <h3>{post.title}</h3>
+          <CommentList comments={post.comments} />
+          <CommentCreate postId={post.id} />
+        </div>
       </div>
-    </div>
-    );
-  });
+      );
+    });
+  }
 
   return <div className="d-flex flex-row flex-wrap justify-content-between">{renderedPosts}</div>;
 };
